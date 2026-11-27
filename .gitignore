@@ -291,12 +291,30 @@ data/intake-snapshots/
 data/agent-inbox.md
 
 # Older installs keep unanchored scaffold negations because reconcileGitignore()
-# only appends rules. Re-ignore matching user-layer folders under data/ after
-# those legacy patterns so personal files stay out of git status and commits.
+# only appends rules, so a legacy `!jds/` re-includes data/jds/ as well as the
+# root scaffold. Re-ignore matching user-layer folders under data/ after those
+# legacy patterns so personal files stay out of git status and commits.
+#
+# Each folder is listed twice on purpose, and the `/**` line is the one that
+# actually holds. A directory-only rule like `data/jds/` is overridden by ANY
+# later directory-only negation, and reconcileGitignore() appends system rules
+# to the END of this file -- including `!/jds/`, `!/documents/`, `!/output/`
+# and `!/data/`. As shipped, nothing negating follows this block, so the
+# ordering happens to work; on a real install that has taken an update, 35+
+# negations sit after it and `data/jds/private.md` becomes visible to git
+# again. Relying on these lines coming last is therefore not a fix, because
+# the updater's whole job is to append past them.
+#
+# `/**` matches the FILE path itself, which a directory-only `!jds/` never
+# does, so these rules hold wherever they end up in the file.
 data/jds/
+data/jds/**
 data/output/
+data/output/**
 data/documents/
+data/documents/**
 data/interview-prep/
+data/interview-prep/**
 
 # Repo-local LaTeX engine placed by install-latex-engine.mjs (.part is its staging copy)
 /tectonic
